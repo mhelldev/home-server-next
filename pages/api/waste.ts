@@ -2,6 +2,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import moment, {Moment} from "moment";
 const ical = require('node-ical');
+import fs from 'fs';
 
 type WasteType = 'Rest' | 'Gelb' | 'Bio' | 'Papier'
 
@@ -14,14 +15,13 @@ interface WasteDate {
     warning: boolean
 }
 
-
 class WasteHandler {
 
-    private dates : WasteDate[] = []
+    private static dates : WasteDate[] = []
 
-    constructor() {
+    constructor () {
         // Perform any setup or initialization here
-        let data = ical.parseFile(__dirname + '/resources/DUS_Abfuhrtermine_Stand_20201228.ICS', (err: any, data: any[]) => {
+        let data = ical.parseFile('public/DUS_Abfuhrtermine_Stand_20230109.ICS', (err: any, data: any[]) => {
             if (err) console.log(err);
             for (let k in data) {
                 if (data.hasOwnProperty(k)) {
@@ -49,7 +49,7 @@ class WasteHandler {
                             type = 'Papier'
                             color = '#1f76b0'
                         }
-                        this.dates.push({
+                        WasteHandler.dates.push({
                             warning,
                             type,
                             color,
@@ -64,7 +64,18 @@ class WasteHandler {
     }
 
     public handler(req: NextApiRequest, res: NextApiResponse<WasteDate[]>) {
-        res.status(200).json(this.dates)
+        if (WasteHandler.dates.length === 0) {
+            res.status(200).json([])
+        }
+
+        const data = WasteHandler.dates.sort((a: WasteDate ,b:WasteDate) => {
+            return a.date.diff(b.date)
+        })
+
+        const nextWaste = data.filter(waste => {
+            return waste.date.isAfter(moment().utc(true))
+        })
+        res.status(200).json(nextWaste)
     }
 }
 
