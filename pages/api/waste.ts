@@ -65,17 +65,16 @@ class WasteHandler {
 
     public handler(req: NextApiRequest, res: NextApiResponse<WasteDate[]>) {
         if (WasteHandler.dates.length === 0) {
-            res.status(200).json([])
+            res.status(200).send([])
+        } else {
+            const sortedDates = WasteHandler.dates.sort((a: WasteDate ,b:WasteDate) => {
+                return a.date.diff(b.date)
+            })
+            const nextWasteDates = sortedDates.filter(waste => {
+                return waste.date.isAfter(moment().utc(true))
+            })
+            res.status(200).json(nextWasteDates)
         }
-
-        const data = WasteHandler.dates.sort((a: WasteDate ,b:WasteDate) => {
-            return a.date.diff(b.date)
-        })
-
-        const nextWaste = data.filter(waste => {
-            return waste.date.isAfter(moment().utc(true))
-        })
-        res.status(200).json(nextWaste)
     }
 }
 
