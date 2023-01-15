@@ -58,5 +58,11 @@ export default async function handler(
             }
         }
     }
-    res.status(200).json(dates)
+    const sortedDates = dates.sort((a: WasteDate ,b:WasteDate) => {
+        return a.date.diff(b.date)
+    })
+    const nextDates = sortedDates.filter((d) => {
+        return d.date.isAfter(moment().utc(true))
+    })
+    res.status(200).json(nextDates)
 }
