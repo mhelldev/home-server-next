@@ -31,6 +31,10 @@ export default async function handler(
                 if (moment(ev.start).diff(moment(),'days') <= 1) {
                     warning = true
                 }
+                if (type.indexOf('Weihnachtsbaumabfuhr') >= 0) {
+                    type = '🎄'
+                    color = '#b0591f'
+                }
                 if (type.indexOf('Bio') >= 0) {
                     type = 'Bio'
                     color = '#b0591f'
