@@ -17,12 +17,10 @@ interface WasteDate {
 
 class WasteHandler {
 
-    private static dates : WasteDate[] = []
-
-    constructor () {
-        // Perform any setup or initialization here
+    public handler(req: NextApiRequest, res: NextApiResponse<WasteDate[]>) {
         let data = ical.parseFile('public/DUS_Abfuhrtermine_Stand_20230109.ICS', (err: any, data: any[]) => {
-            if (err) console.log(err);
+            if (err) res.status(500).send([])
+            const dates : WasteDate[] = []
             for (let k in data) {
                 if (data.hasOwnProperty(k)) {
                     var ev = data[k];
@@ -49,7 +47,7 @@ class WasteHandler {
                             type = 'Papier'
                             color = '#1f76b0'
                         }
-                        WasteHandler.dates.push({
+                        dates.push({
                             warning,
                             type,
                             color,
@@ -60,21 +58,14 @@ class WasteHandler {
                     }
                 }
             }
-        });
-    }
-
-    public handler(req: NextApiRequest, res: NextApiResponse<WasteDate[]>) {
-        if (WasteHandler.dates.length === 0) {
-            res.status(200).send([])
-        } else {
-            const sortedDates = WasteHandler.dates.sort((a: WasteDate ,b:WasteDate) => {
+            const sortedDates = dates.sort((a: WasteDate ,b:WasteDate) => {
                 return a.date.diff(b.date)
             })
             const nextWasteDates = sortedDates.filter(waste => {
                 return waste.date.isAfter(moment().utc(true))
             })
             res.status(200).json(nextWasteDates)
-        }
+        });
     }
 }
 
