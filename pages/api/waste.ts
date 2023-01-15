@@ -7,5 +7,6 @@ export default async function handler(
     res: NextApiResponse<WasteDate>
 ) {
     const wasteEndpoint = new WasteDateEndpoints()
-    res.status(200).json( await wasteEndpoint.getNextDateData())
+    await wasteEndpoint.init()
+    res.status(200).json(await wasteEndpoint.getNextDateData())
 }
