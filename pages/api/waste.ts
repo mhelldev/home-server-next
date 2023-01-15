@@ -3,6 +3,7 @@ import type { NextApiRequest, NextApiResponse } from 'next'
 const ical = require('node-ical');
 var moment = require('moment')
 import { Moment } from 'moment'
+import path from "path";
 
 interface WasteDate {
     type: string
@@ -18,7 +19,8 @@ export default async function handler(
     res: NextApiResponse<WasteDate[]>
 ) {
     const dates: WasteDate[] = []
-    const data = await ical.parseFile('public/DUS_Abfuhrtermine_Stand_20230109.ICS')
+    const jsonDirectory = path.join(process.cwd(), 'public');
+    const data = await ical.parseFile(jsonDirectory + '/DUS_Abfuhrtermine_Stand_20230109.ICS')
     for (let k in data) {
         if (data.hasOwnProperty(k)) {
             var ev = data[k];
