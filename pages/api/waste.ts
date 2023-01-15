@@ -16,7 +16,7 @@ interface WasteDate {
 
 export default async function handler(
     req: NextApiRequest,
-    res: NextApiResponse<WasteDate[]>
+    res: NextApiResponse<WasteDate>
 ) {
     const dates: WasteDate[] = []
     const jsonDirectory = path.join(process.cwd(), 'public');
@@ -68,5 +68,5 @@ export default async function handler(
     const nextDates = sortedDates.filter((d) => {
         return d.date.isAfter(moment().utc(true))
     })
-    res.status(200).json(nextDates)
+    res.status(200).json(nextDates[0])
 }
